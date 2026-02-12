@@ -3,168 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مساعدي الشخصي</title>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>مساعد صالح</title>
     <style>
-        :root { --bg: #f2f2f7; --card: #ffffff; --primary: #007aff; --danger: #ff3b30; --success: #34c759; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; direction: rtl; text-align: right; }
-        .header { padding: 30px 0 10px; text-align: center; }
-        .card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        h2 { font-size: 17px; color: var(--primary); margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 12px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; background: #fafafa; }
-        button { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .task-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f2f2f7; }
-        .task-item:last-child { border: none; }
-        .delete-btn { background: var(--danger); width: auto; padding: 6px 15px; font-size: 12px; border-radius: 8px; }
-        .info { font-size: 12px; color: #8e8e93; margin-top: 4px; }
-        .lecture-row { display: flex; justify-content: space-between; font-size: 14px; padding: 8px 0; border-bottom: 1px dotted #d1d1d6; }
-        .lecture-row:last-child { border: none; }
-        .lecture-row span:last-child { font-weight: bold; color: #555; }
+        :root { --primary: #007aff; --bg: #f2f2f7; --card: #ffffff; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; direction: rtl; }
+        .card { background: var(--card); border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; }
+        h2 { font-size: 18px; color: var(--primary); margin-bottom: 15px; }
+        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .smoke-btn { background: #5856d6; }
+        .info { font-size: 13px; color: #8e8e93; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>مساعدي الشخصي</h1>
-    </div>
-
-    <div class="card" style="text-align: center;">
-        <button onclick="requestPermission()" style="background: var(--success);">🔔 تفعيل الإشعارات والتنبيهات</button>
-        <p class="info">يجب التفعيل لتصلك تنبيهات المواعيد والمهام</p>
-    </div>
-
-    <div class="card">
-        <h2>📝 المهام الحالية</h2>
-        <div id="activeTasks">
-            </div>
-    </div>
-
     <div class="card">
         <h2>🚬 مؤقت التدخين</h2>
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-                <label class="info">الدقائق</label>
-                <input type="number" id="smokeInt" value="50">
-            </div>
-            <div style="flex: 1;">
-                <label class="info">التكرار</label>
-                <input type="number" id="smokeRepeat" value="10" max="20">
-            </div>
-        </div>
-        <button style="background:#5856d6" onclick="startSmoke()">بدء مؤقت التدخين</button>
+        <button class="smoke-btn" onclick="startSmokeTimer()">بدء مؤقت 50 دقيقة</button>
+        <p class="info">سيصلك تنبيه بصوت (Climb) على جوالك.</p>
     </div>
 
     <div class="card">
         <h2>📅 الجدول الدراسي</h2>
-        <div id="lectureList">
-            <div class="lecture-row"><span>الاثنين: الدفاع عن الشبكات</span> <span>03:50 م</span></div>
-            <div class="lecture-row"><span>الثلاثاء: أساسيات التشفير</span> <span>03:50 م</span></div>
-            <div class="lecture-row"><span>الثلاثاء: التشريعات الأخلاقية</span> <span>06:50 م</span></div>
-            <div class="lecture-row"><span>الأربعاء: تصميم الأمن السيبراني</span> <span>03:50 م</span></div>
-            <div class="lecture-row"><span>الأربعاء: أنظمة تقنية المعلومات</span> <span>06:50 م</span></div>
-        </div>
-    </div>
-
-    <div class="card">
-        <h2>➕ إضافة مهمة جديدة</h2>
-        <input type="text" id="taskName" placeholder="اسم المهمة...">
-        <label class="info">مدة المهمة (بالأيام):</label>
-        <select id="taskDuration">
-            <option value="1">يوم واحد</option>
-            <option value="2">يومين</option>
-            <option value="3">3 أيام</option>
-            <option value="4">4 أيام</option>
-            <option value="5">5 أيام</option>
-            <option value="6">6 أيام</option>
-            <option value="7">7 أيام</option>
-        </select>
-        <button onclick="saveTask()">حفظ وجدولة المهمة</button>
+        <button onclick="sendPush('تبدأ الآن محاضرة الأمن السيبراني 🛡️')">تنبيه فوري للمحاضرة</button>
     </div>
 
     <script>
-        // مصفوفة تخزين المهام
-        let tasks = JSON.parse(localStorage.getItem('myTasks')) || [];
+        // مفاتيح Pushover الخاصة بك
+        const USER_KEY = "u3tzdxsiv36dhusagamzj2dzf3tnoo";
+        const API_TOKEN = "a7n1pcuud8fdqoj6cczxf8mibewn8o";
 
-        // تفعيل الإشعارات
-        function requestPermission() {
-            if (!("Notification" in window)) {
-                alert("هذا المتصفح لا يدعم الإشعارات");
-                return;
-            }
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    new Notification("ممتاز!", { body: "الإشعارات مفعلة الآن وسنوافيك بالتنبيهات." });
+        function sendPush(message) {
+            const params = new URLSearchParams();
+            params.append("token", API_TOKEN);
+            params.append("user", USER_KEY);
+            params.append("message", message);
+            params.append("sound", "climb"); 
+            params.append("priority", "1"); 
+
+            fetch('https://api.pushover.net/1/messages.json', {
+                method: 'POST',
+                body: params
+            })
+            .then(res => {
+                if(res.ok) {
+                    alert("وصل التنبيه! افحص جوالك 🚀");
+                } else {
+                    alert("تأكد من صحة المفاتيح في Pushover");
                 }
-            });
+            })
+            .catch(err => alert("حدث خطأ في الاتصال"));
         }
 
-        // حفظ مهمة جديدة
-        function saveTask() {
-            const name = document.getElementById('taskName').value;
-            const duration = document.getElementById('taskDuration').value;
-            
-            if (!name) {
-                alert("يرجى كتابة اسم المهمة");
-                return;
-            }
-
-            const newTask = {
-                id: Date.now(),
-                name: name,
-                duration: duration,
-                date: new Date().toLocaleDateString('ar-SA')
-            };
-
-            tasks.push(newTask);
-            localStorage.setItem('myTasks', JSON.stringify(tasks));
-            renderTasks();
-            
-            // مسح الحقول بعد الحفظ
-            document.getElementById('taskName').value = '';
-            alert(`تم إضافة "${name}" وجدولة تنبيه كل 5 ساعات.`);
+        function startSmokeTimer() {
+            alert("بدأ العد التنازلي. يرجى ترك الصفحة مفتوحة في الخلفية.");
+            // 50 دقيقة
+            setTimeout(() => {
+                sendPush("انتهى وقت الـ 50 دقيقة! 🚬");
+            }, 50 * 60 * 1000); 
         }
-
-        // حذف مهمة
-        function deleteTask(id) {
-            tasks = tasks.filter(task => task.id !== id);
-            localStorage.setItem('myTasks', JSON.stringify(tasks));
-            renderTasks();
-        }
-
-        // عرض المهام في الواجهة
-        function renderTasks() {
-            const container = document.getElementById('activeTasks');
-            container.innerHTML = '';
-
-            if (tasks.length === 0) {
-                container.innerHTML = '<p class="info" style="text-align:center;">لا توجد مهام نشطة حالياً.</p>';
-                return;
-            }
-
-            tasks.forEach(task => {
-                const item = document.createElement('div');
-                item.className = 'task-item';
-                item.innerHTML = `
-                    <div>
-                        <strong>${task.name}</strong>
-                        <div class="info">المدة: ${task.duration} أيام | التاريخ: ${task.date}</div>
-                    </div>
-                    <button class="delete-btn" onclick="deleteTask(${task.id})">حذف</button>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        // مؤقت التدخين
-        function startSmoke() {
-            const mins = document.getElementById('smokeInt').value;
-            const reps = document.getElementById('smokeRepeat').value;
-            alert(`تم بدء مؤقت التدخين. تنبيه كل ${mins} دقيقة، لعدد ${reps} مرات.`);
-        }
-
-        // تشغيل العرض الأولي
-        renderTasks();
     </script>
 </body>
 </html>
