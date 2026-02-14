@@ -2,74 +2,103 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مساعد صالح</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مساعد صالح الشخصي</title>
     <style>
-        :root { --primary: #007aff; --bg: #f2f2f7; --card: #ffffff; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; direction: rtl; }
-        .card { background: var(--card); border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; }
-        h2 { font-size: 18px; color: var(--primary); margin-bottom: 15px; }
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .smoke-btn { background: #5856d6; }
-        .info { font-size: 13px; color: #8e8e93; margin-top: 10px; }
+        :root { --p-color: #2563eb; --s-color: #f8fafc; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e2e8f0; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1 { color: #1e293b; margin-bottom: 25px; }
+        .section { background: var(--s-color); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        h3 { margin-top: 0; color: var(--p-color); }
+        button { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
+        .btn-study { background-color: #059669; color: white; }
+        .btn-smoke { background-color: #dc2626; color: white; }
+        .btn-check { background-color: #4b5563; color: white; }
+        button:hover { opacity: 0.8; transform: scale(1.02); }
+        .schedule-list { text-align: right; font-size: 14px; color: #475569; }
+        .task-input { width: 80%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>🚬 مؤقت التدخين</h2>
-        <button class="smoke-btn" onclick="startSmokeTimer()">بدء مؤقت 50 دقيقة</button>
-        <p class="info">سيصلك تنبيه بصوت (Climb) على جوالك.</p>
+<div class="container">
+    <h1>مرحباً صالح 👋</h1>
+
+    <div class="section">
+        <h3>📅 الجدول الدراسي اليومي</h3>
+        <div class="schedule-list">
+            <p>📍 الأحد - الأربعاء: محاضرة الأمن السيبراني (4:00 م)</p>
+            <p>🔔 تنبيه تلقائي: 3:50 م</p>
+        </div>
+        <button class="btn-study" onclick="sendPush('تنبيه يدوي: وقت المحاضرة قارب على البدء!')">تنبيه فوري للمحاضرة</button>
     </div>
 
-    <div class="card">
-        <h2>📅 الجدول الدراسي</h2>
-        <button onclick="sendPush('تبدأ الآن محاضرة الأمن السيبراني 🛡️')">تنبيه فوري للمحاضرة</button>
+    <div class="section">
+        <h3>🚬 مؤقت التدخين (50 دقيقة)</h3>
+        <p id="smokeStatus">المؤقت متوقف</p>
+        <button class="btn-smoke" onclick="startSmokeTimer()">ابدأ مؤقت الـ 50 دقيقة</button>
     </div>
 
-    <script>
-        // مفاتيح Pushover الخاصة بك
-        const USER_KEY = "u3tzdxsiv36dhusagamzj2dzf3tnoo";
-        const API_TOKEN = "a7n1pcuud8fdqoj6cczxf8mibewn8o";
+    <div class="section">
+        <h3>✅ قائمة المهام</h3>
+        <input type="text" id="taskInput" class="task-input" placeholder="اكتب مهمة جديدة...">
+        <button class="btn-check" onclick="addTask()">إضافة مهمة</button>
+        <div id="taskList" style="text-align: right; margin-top: 10px;"></div>
+    </div>
 
-        function sendPush(message) {
-            const params = new URLSearchParams();
-            params.append("token", API_TOKEN);
-            params.append("user", USER_KEY);
-            params.append("message", message);
-            params.append("sound", "climb"); 
-            params.append("priority", "1"); 
+    <p style="font-size: 10px; color: #94a3b8;">متصل بـ Pushover & Railway</p>
+</div>
 
-            fetch('https://api.pushover.net/1/messages.json', {
+<script>
+    // مفاتيحك الخاصة
+    const USER_KEY = "u3tzdxsiv36dhusagamzj2dzf3tnoo";
+    const API_TOKEN = "a7n1pcuud8fdqoj6cczxf8mibewn8o";
+    const RAILWAY_URL = "https://رابط-مشروعك.up.railway.app/smoke"; // استبدل هذا برابط Railway الفعلي
+
+    // دالة إرسال التنبيه العام
+    async function sendPush(message) {
+        const url = 'https://api.pushover.net/1/messages.json';
+        const body = `token=${API_TOKEN}&user=${USER_KEY}&message=${encodeURIComponent(message)}&priority=1&sound=climb`;
+
+        try {
+            await fetch(url, {
                 method: 'POST',
-                body: params
-                    })
-                    .then(res => {
-                        if(res.ok) {
-                            alert("وصل التنبيه! افحص جوالك 🚀");
-                        } else {
-                            alert("تأكد من صحة المفاتيح في Pushover");
-                        }
-                    })
-                    .catch(err => alert("حدث خطأ في الاتصال"));
-                }
-        
-                function startSmokeTimer() {
-            // إرسال تنبيه فوري يؤكد بدء العد
-            sendPush("بدأ مؤقت الـ 50 دقيقة.. سأذكرك لاحقاً.");
-        
-            // الخدعة: استخدام التوقيت المحلي للجهاز
-            const endTime = new Date(new Date().getTime() + 50 * 60 * 1000);
-            
-            alert("تم ضبط المؤقت لليوم الساعة: " + endTime.toLocaleTimeString());
-        
-            // ملاحظة: لكي يعمل هذا في الآيفون، يجب أن تظل صفحة المتصفح مفتوحة (حتى لو في الخلفية)
-            // الأفضل استخدام المنبه الرسمي للجوال للـ 50 دقيقة لضمان عدم القتل من النظام
-            setTimeout(() => {
-                sendPush("انتهت الـ 50 دقيقة! 🚬");
-            }, 50 * 60 * 1000);
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body
+            });
+            console.log("Push sent!");
+        } catch (e) {
+            alert("فشل إرسال التنبيه");
         }
-    </script>
+    }
+
+    // دالة مؤقت التدخين عبر Railway (لكي لا يتوقف عند قفل الشاشة)
+    function startSmokeTimer() {
+        document.getElementById('smokeStatus').innerText = "تم إرسال الطلب للسيرفر.. انتظر التنبيه بعد 50 دقيقة.";
+        
+        fetch(RAILWAY_URL, { method: 'POST' })
+        .then(() => {
+            alert("بدأ السيرفر في العد التنازلي. يمكنك قفل الجوال الآن.");
+        })
+        .catch(() => {
+            // إذا لم يعمل السيرفر، استخدم التنبيه المباشر كحل بديل
+            sendPush("بدأ مؤقت الـ 50 دقيقة (محلياً)..");
+            setTimeout(() => sendPush("انتهت الـ 50 دقيقة! 🚬"), 50 * 60 * 1000);
+        });
+    }
+
+    // إضافة مهمة للقائمة
+    function addTask() {
+        const input = document.getElementById('taskInput');
+        if (input.value === "") return;
+        const list = document.getElementById('taskList');
+        const div = document.createElement('div');
+        div.innerHTML = `• ${input.value} <hr style='opacity:0.2'>`;
+        list.appendChild(div);
+        input.value = "";
+    }
+</script>
+
 </body>
 </html>
-
